@@ -1,115 +1,68 @@
 // Copyright 2021 NNTU-CS
 #ifndef INCLUDE_BST_H_
 #define INCLUDE_BST_H_
-#include <iostream>
-#include <string>
-#include  <fstream>
-
-template <typename T>
-struct Node {
-    Node<T>* l = nullptr;
-    Node<T>* r = nullptr;
-    int amount = 0;
-    T value = "";
-};
-template <typename T>
+#pragma once
+template<typename T>
 class BST {
  private:
-    Node<T>* base = nullptr;
-    int depthV = 0;
+  struct Node {
+  T value;
+  int count = 0;
+  Node* left = nullptr;
+  Node* right = nullptr;;
+  };
+  Node* root;
+  Node* addNode(Node* root, const T& val) {
+    if (root == nullptr) {
+      root = new Node;
+      root->value = val;
+      root->count = 1;
+      root->left = root->right = nullptr;
+    } else if (root->value < val) {
+        root->left = addNode(root->left, val);
+      } else if (root->value > val) {
+          root->right = addNode(root->right, val);
+        } else {
+            root->count++;
+          }
+    return root;
+    }
+    int searchNode(Node* root, const T& val) {
+      if (root == nullptr) {
+        return 0;
+      } else if (root->value == val) {
+          return root->count;
+        } else if (root->value < val) {
+            return searchNode(root->left, val);
+          } else {
+              return searchNode(root->right, val);
+            }
+    }
+    int depth_p(Node* root) {
+      int lft = 0, rht = 0;
+      if (root == nullptr) {
+        return 0;
+      } else {
+          lft = depth_p(root->left);
+          rht = depth_p(root->right);
+        }
+        if (rht > lft) {
+            return ++rht;
+        } else {
+            return ++lft;
+          }
+    }
 
  public:
-    BST() {
-        base = nullptr;
-        depthV = 0;
-    }
-    void printT(Node<T>* tree, int i) {
-        std::cout << i << "-----" << tree->value <<"\n";
-        ++i;
-        if (tree->l != nullptr) {
-            printTree(tree->l, i);
-        }
-        if (tree->r != nullptr) {
-            printTree(tree->r, i);
-        }
-        return;
-    }
-    void getDepth(Node<T>* tree, int i) {
-        ++i;
-        if (tree->l != nullptr) {
-            getDepth(tree->l, i);
-        }
-        if (tree->r != nullptr) {
-            getDepth(tree->r, i);
-        }
-        if (i > depthV)
-            depthV = i;
-    }
-    void Add(T v) {
-        Node<T>* cur = base;
-        if (cur == nullptr) {
-            cur = new Node<T>;
-            cur->l = nullptr;
-            cur->r = nullptr;
-            cur->value = v;
-            cur->amount +=1;
-            base = cur;
-            return;
-        } else {
-            Node<T>* past = nullptr;
-            bool isl = false;
-            while (true) {
-                if (cur == nullptr) {
-                    cur = new Node<T>;
-                    cur->l = nullptr;
-                    cur->r = nullptr;
-                    cur->value = v;
-                    cur->amount += 1;
-                    if (past != nullptr) {
-                        if (isl == true) {
-                            past->l = cur;
-                        } else {
-                            past->r = cur;
-                        }
-                        past = nullptr;
-                    }
-                    break;
-                } else if (v == cur->value) {
-                    cur->amount += 1;
-                    break;
-                } else if (v > cur->value) {
-                    isl = false;
-                    past = cur;
-                    cur = cur->r;
-                } else if (v < cur->value) {
-                    isl = true;
-                    past = cur;
-                    cur = cur->l;
-                }
-            }
-        }
-    }
-    int search(T v) {
-        Node<T>* cur = base;
-        while (true) {
-            if (cur->value == v) {
-                return cur->amount;
-            } else if (v > cur->value) {
-                cur = cur->r;
-            } else if (v < cur->value) {
-                cur = cur->l;
-            }
-        }
-    }
-    int depth() {
-        Node<T>* cur = base;
-        getDepth(cur, 0);
-        return depthV - 1;
-    }
-
-    void printTree() {
-        Node<T>* cur = base;
-        printT(cur, 0);
-    }
+  BST() :root(nullptr) {}
+  void Add(const T& val) {
+    root = addNode(root, val);
+  }
+  int search(const T& val) {
+    return searchNode(root, val);
+  }
+  int depth() {
+    return depth_p(root) - 1;
+  }
 };
 #endif  // INCLUDE_BST_H_
